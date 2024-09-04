@@ -864,9 +864,32 @@ function Get-DellDrivers {
     }
 }
 
+# Credit: https://github.com/Microsoft/vsts-tasks/blob/d052c35e5abfe5400341323a50826b9ca795166c/Tasks/Common/TlsHelper_/TlsHelper_.psm1
+function Add-Tls12InSession {
+    [CmdletBinding()]
+    param()
+
+    try {
+        if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
+            $securityProtocol=@()
+            $securityProtocol+=[Net.ServicePointManager]::SecurityProtocol
+            $securityProtocol+=[Net.SecurityProtocolType]3072
+            [Net.ServicePointManager]::SecurityProtocol=$securityProtocol
+
+            Write-Host "TLS12AddedInSession succeeded"
+        }
+        else {
+            Write-Verbose 'TLS 1.2 already present in session.'
+        }
+    }
+    catch {
+        Write-Host "UnableToAddTls12InSession $($_.Exception.Message)"
+    }
+}
+
 
 #### MAIN DRIVER INSTALL CODE #################################################
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
 $tsenv = New-Object -ComObject Microsoft.SMS.TSEnvironment
 $OSDisk = $tsenv.Value("OSDisk")
 $OSDiskPath = $OSDisk + "\"
@@ -874,9 +897,12 @@ $WinDir = $OSDiskPath + "Windows"
 $DriversFolder=$OSDiskPath + "Drivers"
 $DriverLog = $DriversFolder + "drivers-dism.log"
 
-If(!(Test-Path -PathType Container $Drivers))
+# TLS 1.2 for downloading from external hosts
+Add-Tls12InSession -Verbose
+
+If(!(Test-Path -PathType Container $DriversFolder))
 {
-      New-Item -ItemType Directory -Path $Drivers -Force
+      New-Item -ItemType Directory -Path $DriversFolder -Force
 }
 Write-Output "Listing Variables"
 Get-Variable
