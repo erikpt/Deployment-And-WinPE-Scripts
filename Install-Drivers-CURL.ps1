@@ -39,7 +39,7 @@ function Start-BitsTransferWithRetry {
             $VerbosePreference = 'SilentlyContinue'
             $ProgressPreference = 'SilentlyContinue'
             #Start-BitsTransfer -Source $Source -Destination $Destination -ErrorAction Stop
-            curl -k $Source --output "$Destination"
+            Start-Process "$ENV:WINDIR\curl.exe" -ArgumentList @("-k", $Source, "--output", $Destination)
             $ProgressPreference = 'Continue'
             $VerbosePreference = $OriginalVerbosePreference
             return
