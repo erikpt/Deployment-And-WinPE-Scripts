@@ -22,11 +22,6 @@ function Test-Url {
     }
 }
 
-function Download-File
-{
-  
-}
-
 # Function to download a file using BITS with retry and error handling
 function Start-BitsTransferWithRetry {
     param (
