@@ -292,6 +292,8 @@ function Get-HPDrivers {
         [int]$WindowsRelease,
         [Parameter()]
         [string]$WindowsVersion
+	[Parameter()]
+ 	[string]$PlatformID
     )
 
     # Download and extract the PlatformList.cab
@@ -335,12 +337,23 @@ function Get-HPDrivers {
         Write-Output "More than one model found matching '$Model':"
         WriteLog "More than one model found matching '$Model':"
         $ProductNames | ForEach-Object -Begin { $i = 1 } -Process {
-            if ($VerbosePreference -ne 'Continue') {
-                Write-Output "$i. $($_.ProductName)"
+            if ($_.SystemID = $PlatformID) 
+	    {
+                WriteLog "Proceeding with model: $Model with PlatformID $PlatformID"
+		$SelectedProduct = $ProductNames[[int]$selection - 1]
+		$ProductName = $SelectedProduct.ProductName
+	        WriteLog "Selected model: $ProductName"
+	        $SystemID = $SelectedProduct.SystemID
+	        WriteLog "SystemID: $SystemID"
+	        $ValidOSReleaseIDs = $SelectedProduct.OSReleaseID
+	        WriteLog "Valid OSReleaseIDs: $ValidOSReleaseIDs"
+	        $IsWindows11 = $SelectedProduct.IsWindows11
+	        WriteLog "IsWindows11 supported: $IsWindows11"
             }
             WriteLog "$i. $($_.ProductName)"
-            $i++
+	    $i++
         }
+	
         $selection = Read-Host "Please select the number corresponding to the correct model"
         WriteLog "User selected model number: $selection"
         if ($selection -match '^\d+$' -and [int]$selection -le $ProductNames.Count) {
@@ -911,6 +924,7 @@ Get-Variable
 
 $deviceMake=(Get-WmiObject -Class Win32_ComputerSystem -Property Manufacturer).Manufacturer
 $deviceModel=(Get-WmiObject -Class Win32_ComputerSystem -Property Model).Model
+$devicePlatformID=(Get-WmiObject -Class win32_baseboard -Property Product).Product
 $arch="x64"
 $release=11
 $version="22h2"
@@ -922,7 +936,7 @@ if ($deviceMake.ToLower() -like '*dell*') {
 } elseif ($deviceMake.ToLower() -like '*microsoft*') { 
 	Get-MicrosoftDrivers -Model $deviceModel -Make $deviceMake -WindowsRelease $release
 } else {
-	Get-HPDrivers -Model $deviceModel -Make $deviceMake -WindowsArch $arch -WindowsRelease $release -WindowsVersion $version
+	Get-HPDrivers -Model $deviceModel -Make $deviceMake -WindowsArch $arch -WindowsRelease $release -WindowsVersion $version -Pletform $devicePlatformID
 }
 
 try {
