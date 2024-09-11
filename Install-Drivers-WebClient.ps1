@@ -293,7 +293,7 @@ function Get-HPDrivers {
         [ValidateSet(10, 11)]
         [int]$WindowsRelease,
         [Parameter()]
-        [string]$WindowsVersion
+        [string]$WindowsVersion,
 	[Parameter()]
  	[string]$PlatformID
     )
@@ -943,7 +943,7 @@ if ($deviceMake.ToLower() -like '*dell*') {
 } elseif ($deviceMake.ToLower() -like '*microsoft*') { 
 	Get-MicrosoftDrivers -Model $deviceModel -Make $deviceMake -WindowsRelease $release
 } else {
-	Get-HPDrivers -Model $deviceModel -Make $deviceMake -WindowsArch $arch -WindowsRelease $release -WindowsVersion $version -Pletform $devicePlatformID
+	Get-HPDrivers -Model $deviceModel -Make $deviceMake -WindowsArch $arch -WindowsRelease $release -WindowsVersion $version -Platform $devicePlatformID
 }
 
 try {
