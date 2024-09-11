@@ -175,7 +175,9 @@ function Get-MicrosoftDrivers {
         }
 
         do {
-            $selection = Read-Host "Enter the number of the model you want to select"
+            #$selection = Read-Host "Enter the number of the model you want to select"
+	    ### TODO: replace this with an actual deterministic selection based on a available data.
+	    $selection = 0
             WriteLog "User selected model number: $selection"
             
             if ($selection -match '^\d+$' -and [int]$selection -ge 0 -and [int]$selection -lt $models.Count) {
@@ -336,9 +338,9 @@ function Get-HPDrivers {
     if ($ProductNames.Count -gt 1) {
         Write-Output "More than one model found matching '$Model':"
         WriteLog "More than one model found matching '$Model':"
+	$selection=-1
         $ProductNames | ForEach-Object -Begin { $i = 1 } -Process {
-            if ($_.SystemID = $PlatformID) 
-	    {
+            if ($_.SystemID -eq $PlatformID)  {
                 WriteLog "Proceeding with model: $Model with PlatformID $PlatformID"
 		$SelectedProduct = $ProductNames[[int]$selection - 1]
 		$ProductName = $SelectedProduct.ProductName
@@ -349,12 +351,13 @@ function Get-HPDrivers {
 	        WriteLog "Valid OSReleaseIDs: $ValidOSReleaseIDs"
 	        $IsWindows11 = $SelectedProduct.IsWindows11
 	        WriteLog "IsWindows11 supported: $IsWindows11"
+	        $selection = $i
             }
             WriteLog "$i. $($_.ProductName)"
 	    $i++
         }
 	
-        $selection = Read-Host "Please select the number corresponding to the correct model"
+        #$selection = Read-Host "Please select the number corresponding to the correct model"
         WriteLog "User selected model number: $selection"
         if ($selection -match '^\d+$' -and [int]$selection -le $ProductNames.Count) {
             $SelectedProduct = $ProductNames[[int]$selection - 1]
@@ -420,7 +423,9 @@ function Get-HPDrivers {
             Write-Output "$i. $_"
             $i++
         }
-        $selection = Read-Host "Please select the number corresponding to the correct OSReleaseID"
+        #$selection = Read-Host "Please select the number corresponding to the correct OSReleaseID"
+	### TODO: Replace with actual deterministic logic
+ 	$selection = 1
         WriteLog "User selected OSReleaseID number: $selection"
         if ($selection -match '^\d+$' -and [int]$selection -le $OSReleaseIDs.Count) {
             $WindowsVersion = $OSReleaseIDs[[int]$selection - 1]
@@ -590,7 +595,9 @@ function Get-LenovoDrivers {
             }
             WriteLog "$($i + 1). $($machineTypes[$i].ProductName) ($($machineTypes[$i].MachineType))"
         }
-        $selection = Read-Host "Enter the number of the model you want to select"
+        #$selection = Read-Host "Enter the number of the model you want to select"
+	### TODO: Replace with deterministic logic
+ 	$selection = 1
         $machineType = $machineTypes[$selection - 1].MachineType
         WriteLog "Selected machine type: $machineType"
         $model = $machineTypes[$selection - 1].ProductName
