@@ -535,6 +535,11 @@ function Get-HPDrivers {
         Start-BitsTransferWithRetry -Source $DriverUrl -Destination $DriverFilePath
         WriteLog 'Driver downloaded'
 
+        if (-not (Test-Path -Path $DriverFilePath)) {
+            WriteLog "Driver $Name $Version could not be downloaded, skipping"
+            return
+        }
+
         # Make folder for extraction
         $extractFolder = "$downloadFolder\$Name\$Version\" + $DriverFileName.TrimEnd('.exe')
         Writelog "Creating extraction folder: $extractFolder"
