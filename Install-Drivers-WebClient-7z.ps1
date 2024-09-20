@@ -7,23 +7,6 @@
 # Microsoft Drivers: Experimental
 # Dell Drivers: Experimental
 
-$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-$7Zip32Exe="$scriptPath\utils\7-Zip\7za.exe"
-$7Zip64Exe="$scriptPath\utils\7-Zip\x64\7za.exe"
-
-if ([Environment]::Is64BitOperatingSystem) {
-    $7ZipExe = $7Zip64Exe
-} else {
-    $7ZipExe = $7Zip32Exe
-}
-
-If ((Test-Path $7ZipExe) -eq $false) {
-    WriteLog "ERROR: Cannot locate 7zip with appropriate bitness at: $7ZipExe"
-    WriteLog "       Please fix this issue and retry running the script."
-    #Exit with exit code for "The system cannot find the file specified."
-    Exit 2
-}
-
 function WriteLog($LogText) { 
     Write-Output "$((Get-Date).ToString()) $LogText" -Force -ErrorAction SilentlyContinue
     Write-Verbose $LogText
@@ -1000,8 +983,26 @@ $WinDir = $OSDiskPath + "Windows"
 $DriversFolder=$OSDiskPath + "Drivers"
 $DriverLog = $DriversFolder + "drivers-dism.log"
 
+If ((Test-Path $7ZipExe) -eq $false) {
+    WriteLog "ERROR: Cannot locate 7zip with appropriate bitness at: $7ZipExe"
+    WriteLog "       Please fix this issue and retry running the script."
+    #Exit with exit code for "The system cannot find the file specified."
+    Exit 2
+}
+
 # TLS 1.2 for downloading from external hosts
 Add-Tls12InSession -Verbose
+
+# Check for presense of 7-Zip in the script path
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$7Zip32Exe="$scriptPath\utils\7Zip\7za.exe"
+$7Zip64Exe="$scriptPath\utils\7Zip\x64\7za.exe"
+
+if ([Environment]::Is64BitOperatingSystem) {
+    $7ZipExe = $7Zip64Exe
+} else {
+    $7ZipExe = $7Zip32Exe
+}
 
 If(!(Test-Path -PathType Container $DriversFolder))
 {
