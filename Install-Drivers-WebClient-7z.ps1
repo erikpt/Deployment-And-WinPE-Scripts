@@ -564,8 +564,9 @@ function Get-HPDrivers {
                 WriteLog "CVA (INI) file found, using that to rename folders."
 		$cvaFile = ((Get-ChildItem $extractFolder\*.cva)[0].FullName)
                 $iniValues = Get-IniContent $cvaFile
-                $driverTitle=$iniValues.Software_Title.US.Trim()
-                $driverVendor=$iniValues.general.vendorname.Trim()
+                $driverTitle = $iniValues.Software_Title.US.Trim()
+                $driverVendor = $iniValues.general.vendorname.Trim()
+		$driverVendor = $driverVendor -replace '[\\\/\:\*\?\"\<\>\|\s]', '_'
             } else {
                 $driverTitle = $DriverFileName.TrimEnd('.exe')
                 $driverVendor = "HP"
@@ -573,7 +574,7 @@ function Get-HPDrivers {
             WriteLog "Extracted driver of type $driverVendor - $driverTitle"
     
             #Perform the move
-            $FinalDriverFolder="$downloadFolder\$Name\$Version\$driverVendor"
+            $FinalDriverFolder = "$downloadFolder\$Name\$Version\$driverVendor"
             if (Test-Path $extractFolder\src) {
                 Move-Item -Path "$extractFolder\src" -Destination "$FinalDriverFolder" -Force -Confirm:$false
                 Remove-Item $extractFolder -Force -Recurse -Confirm:$false
