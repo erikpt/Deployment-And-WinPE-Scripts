@@ -562,7 +562,8 @@ function Get-HPDrivers {
             #Check if we have a CVA file, which is a custom HP INI. Read the INI file and move/rename folders accordingly.
             if (Test-Path $extractFolder\*.cva) {
                 WriteLog "CVA (INI) file found, using that to rename folders."
-                $iniValues = Get-IniContent "C:\Users\Erik.Pitti\Downloads\drivertest\HP01\P010RYB2.cva"
+		$cvaFile = ((Get-ChildItem $extractFolder\*.cva)[0].FullName)
+                $iniValues = Get-IniContent $cvaFile
                 $driverTitle=$iniValues.Software_Title.US.Trim()
                 $driverVendor=$iniValues.general.vendorname.Trim()
             } else {
